@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site STAFF</title>
+<style>
+  body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #2f3136;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+  h2 { text-align: center; color: #7289da; margin: 20px 0 10px 0; }
+  h3 { margin-bottom: 10px; }
+  .container { padding: 15px; max-width: 600px; margin: auto; }
+  .section { margin-bottom: 20px; }
+  .card { background-color: #36393f; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+  .card.urgente { border-left: 5px solid #f04747; }
+  .accordion { background-color: #36393f; color: white; cursor: pointer; padding: 10px; width: 100%; border: none; text-align: left; outline: none; font-size: 16px; border-radius:5px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; }
+  .active, .accordion:hover { background-color: #4f545c; }
+  .panel { padding: 0 10px; display: none; background-color: #2f3136; overflow: hidden; border-radius: 5px; margin-bottom:10px;}
+  .arrow { transition: transform 0.3s; }
+  button { background-color: #7289da; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; margin-top: 5px; width:100%; }
+
+  /* Background especial para Missões */
+  .missoes-background {
+    background: linear-gradient(135deg, #36393f, #2f3136);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Site STAFF<br>Anime Royal</h2>
+<div class="container">
+
+  <!-- MISSÕES -->
+  <div class="section">
+    <h3>Missões</h3>
+    <div id="missoesContainer" class="missoes-background"></div>
+  </div>
+
+  <!-- BANS -->
+  <div class="section">
+    <button class="accordion">Bans <span class="arrow">▶</span></button>
+    <div class="panel" id="bansContainer"></div>
+  </div>
+
+  <!-- RECADOS -->
+  <div class="section">
+    <h3>Recados</h3>
+    <div id="recadosContainer"></div>
+  </div>
+
+  <!-- REGRAS -->
+  <div class="section">
+    <button class="accordion">Regras <span class="arrow">▶</span></button>
+    <div class="panel">
+      <ol>
+        <li>Seja educado com todos.</li>
+        <li>Não spam no chat.</li>
+        <li>Proibido compartilhar links maliciosos.</li>
+        <li>Respeitar hierarquia da staff.</li>
+        <li>Seguir as instruções do ADM.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- DICAS -->
+  <div class="section">
+    <button class="accordion">Dicas & Suporte <span class="arrow">▶</span></button>
+    <div class="panel">
+      <p>Se tiver dúvidas, entre em contato com o ADM via Discord.</p>
+      <p>Mantenha sempre o foco nas missões e nos recados do ADM.</p>
+    </div>
+  </div>
+
+  <!-- CONTATO -->
+  <div class="section">
+    <h3>Contato</h3>
+    <p>Discord: <a href="https://discord.gg/mCsWpMpZJg" target="_blank"
+    style="color:#7289da;">Anime Royal</a></p>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// Configuração Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBZdNC5xIiOdwTbCIEjmcEielf17K2taUM",
+  authDomain: "anime-royal-83c8b.firebaseapp.com",
+  projectId: "anime-royal-83c8b",
+  storageBucket: "anime-royal-83c8b.firebasestorage.app",
+  messagingSenderId: "897346461290",
+  appId: "1:897346461290:web:eea01ad821bd9dfac87413",
+  measurementId: "G-B0JH80K6B4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Carregar MISSÕES
+async function carregarMissoes() {
+  const container = document.getElementById("missoesContainer");
+  container.innerHTML = "";
+  const snapshot = await getDocs(query(collection(db,"missoes"), orderBy("timestamp","desc")));
+  snapshot.forEach(docSnap => {
+    const mis = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "card " + (mis.prioridade==="urgente"?"urgente":"");
+    div.innerHTML = `<strong>${mis.titulo}</strong> (${mis.prioridade.toUpperCase()})<br>${mis.descricao}<br>Data: ${mis.data}`;
+    container.appendChild(div);
+  });
+}
+
+// Carregar BANS
+async function carregarBans() {
+  const container = document.getElementById("bansContainer");
+  container.innerHTML = "";
+  const snapshot = await getDocs(query(collection(db,"bans"), orderBy("timestamp","desc")));
+  snapshot.forEach(docSnap => {
+    const ban = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `ID: ${ban.banID}<br>Motivo: ${ban.banMotivo}<br>Data: ${ban.banData}`;
+    container.appendChild(div);
+  });
+}
+
+// Carregar RECADOS
+async function carregarRecados() {
+  const container = document.getElementById("recadosContainer");
+  container.innerHTML = "";
+  const snapshot = await getDocs(query(collection(db,"recados"), orderBy("timestamp","desc")));
+  snapshot.forEach(docSnap => {
+    const rec = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<strong>${rec.titulo}</strong><br>${rec.descricao}<br>Data: ${rec.data}`;
+    container.appendChild(div);
+  });
+}
+
+// Inicializa carregamento
+carregarMissoes();
+carregarBans();
+carregarRecados();
+
+// Accordion
+const acc = document.getElementsByClassName("accordion");
+for(let i=0;i<acc.length;i++){
+  acc[i].addEventListener("click", function(){
+    this.classList.toggle("active");
+    const panel = this.nextElementSibling;
+    const arrow = this.querySelector(".arrow");
+    if(panel.style.display==="block"){
+      panel.style.display="none";
+      arrow.style.transform="rotate(0deg)";
+    } else {
+      panel.style.display="block";
+      arrow.style.transform="rotate(90deg)";
+    }
+  });
+}
+</script>
+</body>
+</html>
